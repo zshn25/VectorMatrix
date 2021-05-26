@@ -1,5 +1,11 @@
 #include <vector.h>
 
+// Constructors
+template<class T>
+Vector<T>::Vector(size_t capacity): capacity_{capacity},
+                                 curr_idx_{capacity},
+                                 vector_{new T[capacity]} {}
+
 template<class T>
 void Vector<T>::reserve(const size_t capacity)
 {
@@ -28,6 +34,7 @@ void Vector<T>::emplace_back(const T& element)
 
     // Append an element to the array
     vector_[curr_idx_] = element;
+    curr_idx_++;
 }
 
 template<class T>
@@ -37,9 +44,11 @@ T Vector<T>::pop()
     {
         T to_return = vector_[curr_idx_-1]; // store return value before deleting
         vector_[curr_idx_-1]->~T();         // delete from memory
-        curr_idx_--;                
+        curr_idx_--;
+
         return to_return;
     }
+    
 }
 
 template<class T>
@@ -49,6 +58,7 @@ T& Vector<T>::operator()(const size_t index)
         return vector_[index];
 }
 
+// Vector arithmetic operators
 template<class T>
 Vector<T> Vector<T>::operator+(const Vector<T>& other_vector) const
 {
