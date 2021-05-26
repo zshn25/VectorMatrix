@@ -5,7 +5,6 @@ set(CMAKE_CXX_STANDARD 11)
 
 # Set paths and other variables
 add_subdirectory(src)
-include_directories($(PROJECT_SOURCE_DIR)/src/include)
 
 # GoogleTest
 include(FetchContent)
