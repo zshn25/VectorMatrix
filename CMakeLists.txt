@@ -4,7 +4,7 @@ cmake_minimum_required(VERSION 3.15.1)
 set(CMAKE_CXX_STANDARD 11)
 
 # Set paths and other variables
-add_subdirectory(src)
+add_subdirectory(src)#
 
 # GoogleTest
 include(FetchContent)

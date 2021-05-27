@@ -1,5 +1,5 @@
 #pragma once
-
+#include <matrix.h>
 // #include <iostream>
 
 template<class T> class Vector {
@@ -24,12 +24,11 @@ template<class T> class Vector {
         T& operator[](const size_t index); // return element reference at index
         
         // // Arithmetic
-        Vector<T> operator+(const Vector<T>& other_vec) const;
+        Vector operator+(Vector<T>& other_vec) const;
         // Vector<T> operator-(const Vector& other_vec) const; 
-        // Vector<T> operator*(const T scale) const; //scalar multiplication
-        // Vector<T> operator*(const Vector& other_vec) const; //element-wise multiplication
-        // implementing in matrix class 
-        // Vector operator*(const Matrix& matrix) const; // vector matrix multiplication
+        Vector operator*=(T scale); //scalar multiplication
+        Vector operator*(Vector& other_vec) const; //element-wise multiplication
+        Vector operator*(Matrix<T>& matrix) const; // vector matrix multiplication
     private:
         T* vector_ = nullptr;   // pointer to first data element
         size_t capacity_ = 0;   // current memory capacity
@@ -40,7 +39,7 @@ template<class T> class Vector {
 template<class T>
 Vector<T>::Vector(size_t capacity): capacity_{capacity},
                                  curr_idx_{capacity},
-                                 vector_{new T[capacity]} // allocate
+                                 vector_{new T[capacity]{}} // allocate stack and store its pointer
 {
     for (size_t i=0; i < capacity; ++i)
         vector_[i] = T{};   // initialize
@@ -72,7 +71,12 @@ void Vector<T>::emplace_back(const T& element)
 {
     // If no cacacity, increase capacity
     if (curr_idx_ == capacity_)
-        reserve(capacity_*2);   
+    {
+        if (capacity_ == 0) // handing initial when 
+            reserve(8);
+        else
+            reserve(capacity_*2);
+    }
 
     // Append an element to the array
     vector_[curr_idx_] = element;
@@ -102,12 +106,60 @@ T& Vector<T>::operator[](const size_t index)
 
 // Vector arithmetic operators
 template<class T>
-Vector<T> Vector<T>::operator+(const Vector<T>& other_vector) const
+Vector<T> Vector<T>::operator+(Vector<T>& other_vector) const
 {
-    Vector<T> temp_vector = Vector(curr_idx_);
-    for (size_t i=0; i<curr_idx_; ++i)
+    if (other_vector.size() == curr_idx_)   // vectors size must be same for element-wise add
     {
-        temp_vector[i] = vector_[i] + other_vector[i];
+        Vector<T> temp_vector(curr_idx_);
+        for (size_t i=0; i<curr_idx_; ++i)
+        {
+            temp_vector[i] = vector_[i] + other_vector[i];
+        }
+        return temp_vector;
     }
-    return temp_vector;
+}
+
+// Scalar multiplication
+template<class T>
+Vector<T> Vector<T>::operator*=(T scalar)
+{
+    for (size_t i=0; i<curr_idx_; ++i)
+        vector_[i] *= scalar;
+    return *this;
+}
+
+// Element-wise multiplication
+template<class T>
+Vector<T> Vector<T>::operator*(Vector<T>& other_vector) const
+{
+    if (other_vector.size() == curr_idx_)   // vectors size must be same for element-wise add
+    {
+        Vector<T> temp_vector(curr_idx_);
+        for (size_t i=0; i<curr_idx_; ++i)
+        {
+            temp_vector[i] = vector_[i] * other_vector[i];
+        }
+        return temp_vector;
+    }
+}
+
+// Vector matrix multiplication
+template<class T>
+Vector<T> Vector<T>::operator*(Matrix<T>& matrix) const
+{
+    if (matrix.rows() == curr_idx_)   // vectors size must be same for element-wise add
+    {
+        Vector<T> temp_vector(matrix.cols());
+        for (size_t i=0; i<matrix.cols(); ++i)
+            temp_vector[i] = 0;     // Initialize with 0
+
+        for (size_t j=0; j < matrix.cols(); ++j)
+        {
+            for (size_t i=0; i<curr_idx_; ++i)
+            {
+                temp_vector[j] += vector_[i] * matrix[i,j];
+            }
+        }
+        return temp_vector;
+    }
 }
