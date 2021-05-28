@@ -1,12 +1,15 @@
 #pragma once
-#include <matrix.h>
+// #include <matrix.h>
 // #include <iostream>
 
 template<class T> class Vector {
     public:
         // Constructors
         Vector() = default;
+        Vector(const Vector<T>& another_vector);    // copy constructor
+        Vector<T>& operator=(const Vector<T> &);    // copy assignment
         Vector(size_t capacity);    // based on capacity
+        Vector(size_t capacity, T initial);
 
         // Destructor
         ~Vector() {delete[] vector_;}
@@ -22,13 +25,14 @@ template<class T> class Vector {
         
         // Element read/write access
         T& operator[](const size_t index); // return element reference at index
-        
-        // // Arithmetic
+        const T operator[](const size_t index) const; // to also support const objs
+
+        // Arithmetic
         Vector operator+(Vector<T>& other_vec) const;
         // Vector<T> operator-(const Vector& other_vec) const; 
         Vector operator*=(T scale); //scalar multiplication
         Vector operator*(Vector& other_vec) const; //element-wise multiplication
-        Vector operator*(Matrix<T>& matrix) const; // vector matrix multiplication
+        // Vector operator*(Matrix<T>& matrix) const; // vector matrix multiplication
     private:
         T* vector_ = nullptr;   // pointer to first data element
         size_t capacity_ = 0;   // current memory capacity
@@ -46,6 +50,46 @@ Vector<T>::Vector(size_t capacity): capacity_{capacity},
 }
 
 template<class T>
+Vector<T>::Vector(size_t capacity, T initial): capacity_{capacity},
+                                 curr_idx_{capacity},
+                                 vector_{new T[capacity]{}} // allocate stack and store its pointer
+{
+    for (size_t i=0; i < capacity; ++i)
+        vector_[i] = initial;   // initialize
+}
+
+// Copy constructor
+template<class T>
+Vector<T>::Vector(const Vector<T>& another_vector)
+{
+    delete[] vector_;   // Delete before copying everything from another vector
+
+    // Copy everything from another vector
+    curr_idx_ = another_vector.size();
+    capacity_ = another_vector.capacity();
+    vector_ = new T[capacity_];
+    for (size_t i=0; i < capacity_; ++i)
+        vector_[i] = another_vector[i];
+}
+
+// Copy assignment
+template<class T>
+Vector<T>& Vector<T>::operator=(const Vector<T>& another_vector)
+{
+    delete[] vector_;   // Delete before copying everything from another vector
+
+    // Copy everything from another vector
+    curr_idx_ = another_vector.size();
+    capacity_ = another_vector.capacity();
+    vector_ = new T[capacity_];
+    for (size_t i=0; i < capacity_; ++i)
+        vector_[i] = another_vector[i];
+
+    return *this;
+}
+
+// Memory allocation
+template<class T>
 inline void Vector<T>::reserve(const size_t capacity)
 {
     // Haandle case when capacity is less than size. (No need to reallocate)
@@ -56,9 +100,7 @@ inline void Vector<T>::reserve(const size_t capacity)
 
         // Move previous elements to this memory
         for (size_t i=0; i < capacity_; ++i)
-        {
             temp[i] = vector_[i];
-        }
 
         delete[] vector_; // Delete old vector
         capacity_ = capacity;
@@ -104,6 +146,13 @@ T& Vector<T>::operator[](const size_t index)
         return vector_[index];
 }
 
+template<class T>
+const T Vector<T>::operator[](const size_t index) const
+{
+    if (index < curr_idx_)
+        return vector_[index];
+}
+
 // Vector arithmetic operators
 template<class T>
 Vector<T> Vector<T>::operator+(Vector<T>& other_vector) const
@@ -138,27 +187,6 @@ Vector<T> Vector<T>::operator*(Vector<T>& other_vector) const
         for (size_t i=0; i<curr_idx_; ++i)
         {
             temp_vector[i] = vector_[i] * other_vector[i];
-        }
-        return temp_vector;
-    }
-}
-
-// Vector matrix multiplication
-template<class T>
-Vector<T> Vector<T>::operator*(Matrix<T>& matrix) const
-{
-    if (matrix.rows() == curr_idx_)   // vectors size must be same for element-wise add
-    {
-        Vector<T> temp_vector(matrix.cols());
-        for (size_t i=0; i<matrix.cols(); ++i)
-            temp_vector[i] = 0;     // Initialize with 0
-
-        for (size_t j=0; j < matrix.cols(); ++j)
-        {
-            for (size_t i=0; i<curr_idx_; ++i)
-            {
-                temp_vector[j] += vector_[i] * matrix[i,j];
-            }
         }
         return temp_vector;
     }
