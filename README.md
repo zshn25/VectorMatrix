@@ -9,14 +9,14 @@ Incomplete implementation
 
 To implement: 
 
-- All constructors
+- Move constructors and cmove assignment
 - cout
 - Iterators
+- Handle cases where some functions don't return anything
+- Tests
+- Matrix class
 
-Known errors:
-
-- Vector addition doesn't give correct answer.
 
 References:
 
-[Programming Principles and Practice Using C++](https://www.stroustrup.com/Programming/PPP2_Ch18.pdf)
+[Programming Principles and Practice Using C++](https://www.stroustrup.com/programming.html)
