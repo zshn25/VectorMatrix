@@ -1,6 +1,8 @@
 #pragma once
 
+#include <iostream>
 #include <vector.h>
+#include <type_traits>
 
 template<class T> class Matrix {
     public:
@@ -17,6 +19,8 @@ template<class T> class Matrix {
         Vector<T> data_; // data
         size_t rows_;
         size_t cols_;
+
+        static_assert(std::is_arithmetic<T>::value, "Type must be numeric");
 };
 
 template<class T>
@@ -35,19 +39,43 @@ const T Matrix<T>::operator()(const size_t i, const size_t j) const
 template<class T>
 inline Vector<T> operator*(Vector<T> vector, Matrix<T> matrix)
 {
-    if (matrix.rows() == vector.size())   // vectors size must be same for element-wise add
-    {
-        Vector<T> temp_vector(matrix.cols());
-        for (size_t i=0; i<matrix.cols(); ++i)
-            temp_vector[i] = 0;     // Initialize with 0
+    // this function is only for numeric types
+    static_assert(std::is_arithmetic<T>::value, "Type must be numeric");
 
+    if (matrix.rows() != vector.size())   // vectors size must be same for element-wise add
+        throw std::length_error("Matrix rows should be of same size as the vector");
+
+    // Initialize the return vector
+    Vector<T> temp_vector(matrix.cols());
+    for (size_t i=0; i<matrix.cols(); ++i)
+        temp_vector[i] = 0;     // Initialize with 0
+
+    // Compute dot product
+    for (size_t j=0; j < matrix.cols(); ++j)
+        for (size_t i=0; i<matrix.rows(); ++i)
+            temp_vector[j] += vector[i] * matrix(i,j);
+
+    return temp_vector;
+}
+
+// Matrix vector multiplication
+template<class T>
+inline Vector<T> operator*(Matrix<T> matrix, Vector<T> vector)
+{
+    static_assert(std::is_arithmetic<T>::value, "Type must be numeric");// this function is only for numeric types
+    if (matrix.cols() != vector.size())   // vectors size must be same for element-wise add
+        throw std::length_error("Matrix columns should be of same size as the vector");
+
+    // Initialize the return vector
+    Vector<T> temp_vector(matrix.rows());
+    for (size_t i=0; i<matrix.rows(); ++i)
+        temp_vector[i] = 0;     // Initialize with 0
+
+    // Compute dot product
+    for (size_t i=0; i<matrix.rows(); ++i)
         for (size_t j=0; j < matrix.cols(); ++j)
-        {
-            for (size_t i=0; i<matrix.rows(); ++i)
-            {
-                temp_vector[j] += vector[i] * matrix(i,j);
-            }
-        }
-        return temp_vector;
-    }
+            temp_vector[i] += matrix(i,j) * vector[j];
+
+    return temp_vector;
+
 }

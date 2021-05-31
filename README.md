@@ -5,16 +5,14 @@ Copyright Zeeshan Khan Suri 2021
 MIT License
 
 
-Incomplete implementation
-
 To implement: 
 
 - Move constructors and cmove assignment
 - cout
 - Iterators
-- Handle cases where some functions don't return anything
 - Tests
-- Matrix class
+- Maybe have matrix class as base and derive vector from it
+
 
 
 References:

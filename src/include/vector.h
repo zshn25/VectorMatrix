@@ -1,6 +1,7 @@
 #pragma once
 // #include <matrix.h>
-// #include <iostream>
+#include <iostream>
+#include <stdexcept>
 
 template<class T> class Vector {
     public:
@@ -8,8 +9,8 @@ template<class T> class Vector {
         Vector() = default;
         Vector(const Vector<T>& another_vector);    // copy constructor
         Vector<T>& operator=(const Vector<T> &);    // copy assignment
-        Vector(size_t capacity);    // based on capacity
-        Vector(size_t capacity, T initial);
+        // Vector(size_t capacity);    
+        Vector(size_t capacity, T initial = T{});   // based on capacity
 
         // Destructor
         ~Vector() {delete[] vector_;}
@@ -40,14 +41,14 @@ template<class T> class Vector {
 };
 
 // Constructors
-template<class T>
-Vector<T>::Vector(size_t capacity): capacity_{capacity},
-                                 curr_idx_{capacity},
-                                 vector_{new T[capacity]{}} // allocate stack and store its pointer
-{
-    for (size_t i=0; i < capacity; ++i)
-        vector_[i] = T{};   // initialize
-}
+// template<class T>
+// Vector<T>::Vector(size_t capacity): capacity_{capacity},
+//                                  curr_idx_{capacity},
+//                                  vector_{new T[capacity]{}} // allocate stack and store its pointer
+// {
+//     for (size_t i=0; i < capacity; ++i)
+//         vector_[i] = T{};   // initialize
+// }
 
 template<class T>
 Vector<T>::Vector(size_t capacity, T initial): capacity_{capacity},
@@ -136,21 +137,27 @@ T Vector<T>::pop()
 
         return to_return;
     }
+    else
+        throw std::out_of_range("Nothing to pop")
 }
 
 // Element read/write access
 template<class T>
 T& Vector<T>::operator[](const size_t index)
 {
-    if (index < curr_idx_)
-        return vector_[index];
+    if (index >= curr_idx_)
+        throw std::invalid_argument("Index must be less than vector's size");
+    
+    return vector_[index];
 }
 
 template<class T>
 const T Vector<T>::operator[](const size_t index) const
 {
-    if (index < curr_idx_)
-        return vector_[index];
+    if (index >= curr_idx_)
+        throw std::invalid_argument("Index must be less than vector's size");
+    
+    return vector_[index];
 }
 
 // Vector arithmetic operators
