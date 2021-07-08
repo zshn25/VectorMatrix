@@ -42,7 +42,7 @@ inline Vector<T> operator*(Vector<T> vector, Matrix<T> matrix)
     // this function is only for numeric types
     static_assert(std::is_arithmetic<T>::value, "Type must be numeric");
 
-    if (matrix.rows() != vector.size())   // vectors size must be same for element-wise add
+    if (matrix.rows() != vector.Size())   // vectors size must be same for element-wise add
         throw std::length_error("Matrix rows should be of same size as the vector");
 
     // Initialize the return vector
@@ -63,7 +63,7 @@ template<class T>
 inline Vector<T> operator*(Matrix<T> matrix, Vector<T> vector)
 {
     static_assert(std::is_arithmetic<T>::value, "Type must be numeric");// this function is only for numeric types
-    if (matrix.cols() != vector.size())   // vectors size must be same for element-wise add
+    if (matrix.cols() != vector.Size())   // vectors size must be same for element-wise add
         throw std::length_error("Matrix columns should be of same size as the vector");
 
     // Initialize the return vector
